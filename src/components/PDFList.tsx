@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, Download, FileText, Eye } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Download } from "lucide-react";
 import { toast } from "sonner";
 import PreviewDrawer from "./PreviewDrawer";
+import SearchBar from "./pdf/SearchBar";
+import PDFGrid from "./pdf/PDFGrid";
+import SearchResult from "./pdf/SearchResult";
 
 interface PDF {
   id: number;
@@ -152,54 +153,18 @@ const PDFList = ({ pdfs }: PDFListProps) => {
     <div className="space-y-6">
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Your PDFs ({pdfs.length})</h2>
-        
-        {pdfs.length === 0 ? (
-          <div className="text-center py-8 border border-dashed rounded-lg">
-            <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <p className="mt-2 text-gray-500">No PDFs uploaded yet</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pdfs.map((pdf) => (
-              <div key={pdf.id} className="pdf-card flex flex-col">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center">
-                    <FileText className="h-5 w-5 text-pdf-primary mr-2" />
-                    <div className="truncate font-medium" title={pdf.name}>
-                      {pdf.name}
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-2 flex justify-between text-sm text-gray-500">
-                  <span>{pdf.pages} {pdf.pages === 1 ? 'page' : 'pages'}</span>
-                  <span>{formatFileSize(pdf.size)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <PDFGrid pdfs={pdfs} formatFileSize={formatFileSize} />
       </div>
 
       {pdfs.length > 0 && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 flex gap-2">
-              <Input
-                placeholder="Enter search term..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1"
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              />
-              <Button 
-                onClick={handleSearch} 
-                disabled={isSearching || !searchTerm.trim()}
-                className="bg-pdf-primary hover:bg-blue-600"
-              >
-                {isSearching ? "Searching..." : "Search"}
-                <Search className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <SearchBar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              handleSearch={handleSearch}
+              isSearching={isSearching}
+            />
             {searchResults.length > 0 && (
               <Button
                 onClick={handleDownload}
@@ -217,37 +182,14 @@ const PDFList = ({ pdfs }: PDFListProps) => {
               <h3 className="text-lg font-semibold">Search Results</h3>
               <div className="space-y-4">
                 {searchResults.map((result) => (
-                  <div key={result.pdfId} className="bg-white rounded-lg border p-4">
-                    <h4 className="font-medium flex items-center">
-                      <FileText className="h-4 w-4 text-pdf-primary mr-2" />
-                      {result.pdfName}
-                    </h4>
-                    <div className="mt-2 space-y-2">
-                      {result.pageMatches.map((match, idx) => (
-                        <div key={idx} className="bg-gray-50 p-3 rounded-md text-sm relative">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <Badge className="bg-pdf-primary hover:bg-pdf-primary/90">
-                                Page {match.page}
-                              </Badge>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 px-2"
-                              onClick={() => handlePreviewClick(result.pdfName, match.page, match.excerpt)}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              Preview
-                            </Button>
-                          </div>
-                          <p className="text-gray-700 pl-2 border-l-2 border-pdf-primary">
-                            {highlightSearchTerm(match.excerpt, searchTerm)}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <SearchResult
+                    key={result.pdfId}
+                    pdfName={result.pdfName}
+                    pageMatches={result.pageMatches}
+                    onPreviewClick={handlePreviewClick}
+                    searchTerm={searchTerm}
+                    highlightSearchTerm={highlightSearchTerm}
+                  />
                 ))}
               </div>
             </div>
