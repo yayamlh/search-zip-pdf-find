@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, Download, FileText } from "lucide-react";
+import { Search, Download, FileText, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import PreviewDrawer from "./PreviewDrawer";
 
 interface PDF {
   id: number;
@@ -28,6 +28,17 @@ const PDFList = ({ pdfs }: PDFListProps) => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [previewData, setPreviewData] = useState<{
+    isOpen: boolean;
+    pdfName: string;
+    pageNumber: number;
+    previewText: string;
+  }>({
+    isOpen: false,
+    pdfName: "",
+    pageNumber: 0,
+    previewText: "",
+  });
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -38,10 +49,8 @@ const PDFList = ({ pdfs }: PDFListProps) => {
     setIsSearching(true);
 
     try {
-      // In a real app, this would be an API call to search the PDFs
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Mock search results
       if (pdfs.length === 0) {
         toast.error("No PDFs available to search");
         setSearchResults([]);
@@ -49,7 +58,6 @@ const PDFList = ({ pdfs }: PDFListProps) => {
       }
 
       const mockResults: SearchResult[] = pdfs.map(pdf => {
-        // Randomly decide if this PDF has matches
         if (Math.random() > 0.3) {
           const matchCount = Math.floor(Math.random() * 5) + 1;
           const pageMatches = Array.from({ length: matchCount }, () => {
@@ -97,7 +105,6 @@ const PDFList = ({ pdfs }: PDFListProps) => {
     setIsDownloading(true);
 
     try {
-      // In a real app, this would be an API call to generate and download the ZIP
       await new Promise(resolve => setTimeout(resolve, 2000));
       toast.success("ZIP file generated and downloaded");
     } catch (error) {
@@ -105,6 +112,19 @@ const PDFList = ({ pdfs }: PDFListProps) => {
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handlePreviewClick = (pdfName: string, pageNumber: number, excerpt: string) => {
+    setPreviewData({
+      isOpen: true,
+      pdfName,
+      pageNumber,
+      previewText: excerpt,
+    });
+  };
+
+  const closePreview = () => {
+    setPreviewData(prev => ({ ...prev, isOpen: false }));
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -205,10 +225,19 @@ const PDFList = ({ pdfs }: PDFListProps) => {
                     <div className="mt-2 space-y-2">
                       {result.pageMatches.map((match, idx) => (
                         <div key={idx} className="bg-gray-50 p-2 rounded-md text-sm">
-                          <div className="flex items-center mb-1">
+                          <div className="flex items-center justify-between mb-1">
                             <Badge variant="outline" className="text-xs">
                               Page {match.page}
                             </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2"
+                              onClick={() => handlePreviewClick(result.pdfName, match.page, match.excerpt)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Preview
+                            </Button>
                           </div>
                           <p className="text-gray-700">
                             {highlightSearchTerm(match.excerpt, searchTerm)}
@@ -223,6 +252,14 @@ const PDFList = ({ pdfs }: PDFListProps) => {
           )}
         </div>
       )}
+
+      <PreviewDrawer
+        isOpen={previewData.isOpen}
+        onClose={closePreview}
+        pdfName={previewData.pdfName}
+        pageNumber={previewData.pageNumber}
+        previewText={previewData.previewText}
+      />
     </div>
   );
 };
