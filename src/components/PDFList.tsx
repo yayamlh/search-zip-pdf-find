@@ -224,11 +224,13 @@ const PDFList = ({ pdfs }: PDFListProps) => {
                     </h4>
                     <div className="mt-2 space-y-2">
                       {result.pageMatches.map((match, idx) => (
-                        <div key={idx} className="bg-gray-50 p-2 rounded-md text-sm">
-                          <div className="flex items-center justify-between mb-1">
-                            <Badge variant="outline" className="text-xs">
-                              Page {match.page}
-                            </Badge>
+                        <div key={idx} className="bg-gray-50 p-3 rounded-md text-sm relative">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-pdf-primary hover:bg-pdf-primary/90">
+                                Page {match.page}
+                              </Badge>
+                            </div>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -239,7 +241,7 @@ const PDFList = ({ pdfs }: PDFListProps) => {
                               Preview
                             </Button>
                           </div>
-                          <p className="text-gray-700">
+                          <p className="text-gray-700 pl-2 border-l-2 border-pdf-primary">
                             {highlightSearchTerm(match.excerpt, searchTerm)}
                           </p>
                         </div>
