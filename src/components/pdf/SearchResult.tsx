@@ -18,11 +18,23 @@ const SearchResult = ({
   searchTerm,
   highlightSearchTerm 
 }: SearchResultProps) => {
+  // Extract total pages from the PDF name (assuming format: filename (X/Y))
+  const getTotalPages = () => {
+    if (pdfName.includes('(')) {
+      const totalPages = pdfName.split('(')[1].split('/')[1].replace(')', '');
+      return totalPages;
+    }
+    return '?';
+  };
+
   return (
     <div className="bg-white rounded-lg border p-4">
       <h4 className="font-medium flex items-center gap-2 mb-3">
         <FileText className="h-4 w-4 text-pdf-primary" />
         <span className="flex-1">{pdfName}</span>
+        <Badge variant="outline" className="text-pdf-primary">
+          Total pages: {getTotalPages()}
+        </Badge>
         <Badge variant="outline" className="text-pdf-primary">
           {pageMatches.length} {pageMatches.length === 1 ? 'match' : 'matches'}
         </Badge>
@@ -32,7 +44,7 @@ const SearchResult = ({
           <div key={idx} className="bg-gray-50 p-3 rounded-md text-sm relative">
             <div className="flex items-center justify-between mb-2">
               <Badge className="bg-pdf-primary hover:bg-pdf-primary/90 text-base">
-                Page {match.page}/{pdfName.includes('(') ? pdfName.split('(')[1].split('/')[1].replace(')', '') : '?'}
+                Found on page {match.page} of {getTotalPages()}
               </Badge>
               <Button
                 variant="ghost"
