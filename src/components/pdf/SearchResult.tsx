@@ -20,19 +20,20 @@ const SearchResult = ({
 }: SearchResultProps) => {
   return (
     <div className="bg-white rounded-lg border p-4">
-      <h4 className="font-medium flex items-center">
-        <FileText className="h-4 w-4 text-pdf-primary mr-2" />
-        {pdfName}
+      <h4 className="font-medium flex items-center gap-2 mb-3">
+        <FileText className="h-4 w-4 text-pdf-primary" />
+        <span className="flex-1">{pdfName}</span>
+        <Badge variant="outline" className="text-pdf-primary">
+          {pageMatches.length} {pageMatches.length === 1 ? 'match' : 'matches'}
+        </Badge>
       </h4>
-      <div className="mt-2 space-y-2">
+      <div className="space-y-3">
         {pageMatches.map((match, idx) => (
           <div key={idx} className="bg-gray-50 p-3 rounded-md text-sm relative">
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-pdf-primary hover:bg-pdf-primary/90">
-                  Page {match.page}
-                </Badge>
-              </div>
+              <Badge className="bg-pdf-primary hover:bg-pdf-primary/90 text-base">
+                Page {match.page}/{pdfName.includes('(') ? pdfName.split('(')[1].split('/')[1].replace(')', '') : '?'}
+              </Badge>
               <Button
                 variant="ghost"
                 size="sm"
