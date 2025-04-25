@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
@@ -67,15 +68,18 @@ const PDFList = ({ pdfs }: PDFListProps) => {
             return { page, excerpt };
           });
           
+          // Include total pages information in the PDF name
+          const pdfNameWithPages = `${pdf.name} (${pdf.pages} pages)`;
+          
           return {
             pdfId: pdf.id,
-            pdfName: pdf.name,
+            pdfName: pdfNameWithPages,
             pageMatches
           };
         }
         return {
           pdfId: pdf.id,
-          pdfName: pdf.name,
+          pdfName: `${pdf.name} (${pdf.pages} pages)`,
           pageMatches: []
         };
       }).filter(result => result.pageMatches.length > 0);
@@ -142,7 +146,7 @@ const PDFList = ({ pdfs }: PDFListProps) => {
       <>
         {parts.map((part, index) => 
           part.toLowerCase() === term.toLowerCase() ? 
-            <span key={index} className="highlight">{part}</span> : 
+            <span key={index} className="highlight bg-yellow-200">{part}</span> : 
             part
         )}
       </>

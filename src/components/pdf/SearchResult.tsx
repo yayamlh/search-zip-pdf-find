@@ -18,11 +18,30 @@ const SearchResult = ({
   searchTerm,
   highlightSearchTerm 
 }: SearchResultProps) => {
-  // Extract total pages from the PDF name (assuming format: filename (X/Y))
+  // Extract total pages from the PDF name (assuming format: filename (X pages))
   const getTotalPages = () => {
-    if (pdfName.includes('(')) {
+    // First try to extract from the PDF name format: filename (X/Y)
+    if (pdfName.includes('(') && pdfName.includes('/')) {
       const totalPages = pdfName.split('(')[1].split('/')[1].replace(')', '');
       return totalPages;
+    }
+    
+    // Then try to extract from PDF name format: filename (X pages)
+    if (pdfName.includes('(') && pdfName.includes('pages')) {
+      const regex = /\((\d+) pages\)/;
+      const match = pdfName.match(regex);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+
+    // Fallback to extracting just the number from parentheses
+    if (pdfName.includes('(') && pdfName.includes(')')) {
+      const regex = /\((\d+)\)/;
+      const match = pdfName.match(regex);
+      if (match && match[1]) {
+        return match[1];
+      }
     }
     return '?';
   };
